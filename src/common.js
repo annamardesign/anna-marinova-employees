@@ -24,10 +24,8 @@ export const csvToJson = (csv) => {
       
           for (let i = 0; i < headers.length; i++) {
             const header = headers[i].trim();
-            console.log('header', header);
             obj[header] = row[i]?.trim();
           }
-          console.log('obj', obj);
           result.push(obj);
         }
         return result;
@@ -45,14 +43,6 @@ export const getDaysFromUnix = (timestamp1, timestamp2) => {
         let difference = timestamp1 - timestamp2;
         let TotalDays = Math.ceil(difference / (1000 * 3600 * 24));
         return TotalDays;
-};
-export  const groupByProjectId = (obj) => {
-        return Object.values(obj.reduce((acc, current) => {
-            acc[current.projectId] = acc[current.projectId] ?? [];
-            acc && acc[current.projectId].push(current);
-            return acc;
-        }, {})
-    );
 };
 
 export const hasOverlap = (firstRecord, secondRecord) => {
@@ -81,6 +71,5 @@ export const findAllPairsIndexes = (arrLength) => {
                 }
             }
         }
-        console.log("*****************" , result)
         return result;
 };

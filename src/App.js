@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { csvToJson, getHeaders, getDays, groupByProjectId, hasOverlap, calculateOverlap, findAllPairsIndexes } from "./common";
+import { csvToJson, getHeaders, getDays, hasOverlap, calculateOverlap, findAllPairsIndexes } from "./common";
 import moment from 'moment';
 import './App.css';
  
  function App() {
    const [file, setFile] = useState();
    const [parsedRecords, setParsedRecords] = useState([]);
-   const [headers, setHeaders] = useState([]);
+   const headers = ['ProjectId', 'EmpId 1', 'EmpId 2', 'Days'];
  
    const fileReader = new FileReader();
    
@@ -16,16 +16,13 @@ import './App.css';
 
    moment.defaultFormat = "YYYY-MM-DD";
    const csvFileToArray = string => {
-    setHeaders(getHeaders(string));
     setParsedRecords(csvToJson(string))
   }
-  console.log('json', parsedRecords);
-  
-
 
   const newTable = [];
   let uniqueProjectIds = [];
   let filteredPairs = [];
+  let sortedPairs;
 
   if(parsedRecords) {
     parsedRecords.forEach(item => {
@@ -66,26 +63,16 @@ import './App.css';
       }
     })
 
-    console.log('filteredPairs', filteredPairs);
-    const sortedPairs = filteredPairs.sort((a,b) => b.Days - a.Days)
-    console.log('sortedPairs', sortedPairs);
-
-    console.log('winners', sortedPairs[0])
-
-
-
+    sortedPairs = filteredPairs.sort((a,b) => b.Days - a.Days)
 
     const test = parsedRecords.filter(r => r.ProjectId === '14');
     if(test.length > 0) {
-      console.log('test', test);
       const overlap = hasOverlap(test[0], test[1]);
       const calculate = calculateOverlap(test[0], test[1]);
-      console.log('overlap', overlap);
     }
   };
 
-  const grouped = groupByProjectId(newTable);
-    console.log('grouped', grouped);
+  const teamWithHighestDays = sortedPairs && sortedPairs[0];
  
    const handleOnSubmit = (e) => {
      e.preventDefault();
@@ -100,7 +87,17 @@ import './App.css';
      }
    };
 
- 
+ const getTableRow = () => {
+    if(teamWithHighestDays) {
+      return (<tr>
+        {Object.values(teamWithHighestDays).map((val) => (
+          <td>{val.toString()}</td>
+        ))}
+      </tr>)
+    }
+    return null;
+
+ };
  
    return (
      <div style={{ textAlign: "center" }}>
@@ -123,25 +120,19 @@ import './App.css';
  
        <br />
  
-       {/* <table>
+       <table style={{ textAlign: "center" }}>
          <thead>
            <tr key={"header"}>
-             {headers && headers.map((key) => (
-               <th>{key}</th>
+             {headers && headers.map((header) => (
+               <th>{header}</th>
              ))}
            </tr>
          </thead>
  
           <tbody>
-           {newTable && newTable.map((item) => (
-             <tr key={item.id}>
-               {Object.values(item).map((val) => (
-                 <td>{val.toString()}</td>
-               ))}
-             </tr>
-           ))}
+             {getTableRow()}
          </tbody>
-       </table> */}
+       </table>
      </div>
    );
  }
